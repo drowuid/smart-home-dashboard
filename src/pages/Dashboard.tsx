@@ -1,6 +1,6 @@
-
 import { useState, useEffect, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, AreaChart, Area } from "recharts";
+import { useTheme } from "../hooks/useTheme";
 
 // Types
 interface SensorReading {
@@ -32,8 +32,9 @@ interface StatsCardProps {
   change?: number;
 }
 
+
 // Mock WebSocket hook for demo
-function useWebSocket(url: string): SensorData {
+function useWebSocket(): SensorData {
   const [data, setData] = useState<SensorData>({});
   useEffect(() => {
     const rooms = ["Living Room", "Kitchen", "Bedroom", "Office"];
@@ -84,8 +85,8 @@ function AlertsPanel({ alerts, onClose }: AlertsPanelProps) {
           <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Alert History
           </h2>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
           >
             ✕
@@ -137,12 +138,13 @@ function StatsCard({ title, value, icon, color, change }: StatsCardProps) {
 }
 
 export default function Dashboard() {
-  const sensorData = useWebSocket("ws://localhost:4000");
+  const sensorData = useWebSocket();
   const [notification, setNotification] = useState<string | null>(null);
   const lastAlertRef = useRef<string | null>(null);
   const [showAlerts, setShowAlerts] = useState<boolean>(false);
   const [alertHistory, setAlertHistory] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'sensors' | 'alerts' | 'settings'>('overview');
+  const { theme, toggleTheme } = useTheme();
   const [thresholds, setThresholds] = useState<{ [room: string]: { temp: number; humidity: number } }>({
     "Living Room": { temp: 28, humidity: 70 },
     "Kitchen": { temp: 30, humidity: 75 },
@@ -191,8 +193,8 @@ export default function Dashboard() {
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{animationDelay: '2s'}}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{animationDelay: '4s'}}></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{ animationDelay: '4s' }}></div>
       </div>
 
       <div className="relative z-10 flex min-h-screen">
@@ -222,11 +224,10 @@ export default function Dashboard() {
                     setActiveTab(item.id);
                     if (item.id === 'alerts') setShowAlerts(true);
                   }}
-                  className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 ${
-                    activeTab === item.id 
-                      ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-white border border-cyan-500/30' 
+                  className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 ${activeTab === item.id
+                      ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-white border border-cyan-500/30'
                       : 'text-white/70 hover:text-white hover:bg-white/5'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center space-x-3">
                     <span className="text-lg">{item.icon}</span>
@@ -273,6 +274,12 @@ export default function Dashboard() {
               </div>
               <div className="flex items-center space-x-4">
                 <button
+                  onClick={toggleTheme}
+                  className="bg-white/10 border border-white/20 px-3 py-2 rounded-xl text-white hover:bg-white/20 transition"
+                >
+                  {theme === 'dark' ? '🌙 Dark' : '☀️ Light'}
+                </button>
+                <button
                   onClick={() => setShowAlerts(true)}
                   className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-sm border border-yellow-500/30 text-white px-4 py-2 rounded-xl hover:from-yellow-500/30 hover:to-orange-500/30 transition-all duration-200 flex items-center space-x-2"
                 >
@@ -282,6 +289,7 @@ export default function Dashboard() {
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span className="text-white/80 text-sm">System Online</span>
               </div>
+
             </div>
           </header>
 
@@ -375,11 +383,10 @@ export default function Dashboard() {
                         </div>
 
                         {/* Status */}
-                        <div className={`text-center py-3 px-4 rounded-xl font-medium mb-4 ${
-                          latest?.leakDetected 
-                            ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
+                        <div className={`text-center py-3 px-4 rounded-xl font-medium mb-4 ${latest?.leakDetected
+                            ? 'bg-red-500/20 text-red-400 border border-red-500/30'
                             : 'bg-green-500/20 text-green-400 border border-green-500/30'
-                        }`}>
+                          }`}>
                           {latest?.leakDetected ? '🚨 Leak Detected!' : '✅ All Systems Normal'}
                         </div>
 
@@ -389,14 +396,14 @@ export default function Dashboard() {
                             <AreaChart data={tempData}>
                               <defs>
                                 <linearGradient id={`gradient-${idx}`} x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
                                 </linearGradient>
                               </defs>
-                              <Area 
-                                type="monotone" 
-                                dataKey="temperature" 
-                                stroke="#3b82f6" 
+                              <Area
+                                type="monotone"
+                                dataKey="temperature"
+                                stroke="#3b82f6"
                                 strokeWidth={2}
                                 fill={`url(#gradient-${idx})`}
                               />
@@ -413,7 +420,7 @@ export default function Dashboard() {
             {activeTab === 'sensors' && Object.keys(sensorData).length > 0 && (
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                 {Object.entries(sensorData).map(([room, readings]) => {
-                  const chartData = readings.slice(-20).map((reading, i) => ({
+                  const chartData = readings.slice(-20).map((reading) => ({
                     time: new Date(reading.timestamp).toLocaleTimeString(),
                     temperature: reading.temperature,
                     humidity: reading.humidity
@@ -426,8 +433,8 @@ export default function Dashboard() {
                         <ResponsiveContainer width="100%" height="100%">
                           <LineChart data={chartData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                            <XAxis 
-                              dataKey="time" 
+                            <XAxis
+                              dataKey="time"
                               stroke="rgba(255,255,255,0.6)"
                               fontSize={12}
                             />
@@ -478,8 +485,8 @@ export default function Dashboard() {
                 </p>
                 <div className="flex space-x-2 mt-6">
                   <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                  <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                 </div>
               </div>
             )}
