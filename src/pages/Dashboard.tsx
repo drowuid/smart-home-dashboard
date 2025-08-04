@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, AreaChart, Area } from "recharts";
 import { useTheme } from "../hooks/useTheme";
+import { useAuth } from '../context/AuthContext';
 
 // Types
 interface SensorReading {
@@ -145,6 +146,7 @@ export default function Dashboard() {
   const [alertHistory, setAlertHistory] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'sensors' | 'alerts' | 'settings'>('overview');
   const { theme, toggleTheme } = useTheme();
+  const { user, role, logout } = useAuth();
   const [thresholds] = useState<{ [room: string]: { temp: number; humidity: number } }>({
     "Living Room": { temp: 28, humidity: 70 },
     "Kitchen": { temp: 30, humidity: 75 },
@@ -245,14 +247,17 @@ export default function Dashboard() {
 
           <div className="absolute bottom-6 left-6 right-6">
             <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 backdrop-blur-sm border border-emerald-500/30 rounded-xl p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">A</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">{user?.[0]?.toUpperCase()}</span>
+                  </div>
+                  <div>
+                    <p className="text-white font-medium text-sm">{user}</p>
+                    <p className="text-white/60 text-xs capitalize">{role}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-white font-medium text-sm">Admin User</p>
-                  <p className="text-white/60 text-xs">Online</p>
-                </div>
+                <button onClick={logout} className="text-white/70 hover:text-white text-sm">Logout</button>
               </div>
             </div>
           </div>

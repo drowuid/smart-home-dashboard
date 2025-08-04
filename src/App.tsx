@@ -1,19 +1,23 @@
-import { BrowserRouter as Router, Routes, Route,} from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-import Settings from "./pages/Settings";
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+
+function ProtectedRoute({ children }: { children: JSX.Element }) {
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/login" replace />;
+}
 
 export default function App() {
   return (
-    <Router>
-      <div className="flex min-h-screen">
-        {/* Main Content Only */}
-        <div className="flex-1 flex flex-col">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/settings" element={<Settings />} />
-          </Routes>
-        </div>
-      </div>
-  </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
