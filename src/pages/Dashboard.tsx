@@ -145,7 +145,7 @@ export default function Dashboard() {
   const [alertHistory, setAlertHistory] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'sensors' | 'alerts' | 'settings'>('overview');
   const { theme, toggleTheme } = useTheme();
-  const [thresholds, setThresholds] = useState<{ [room: string]: { temp: number; humidity: number } }>({
+  const [thresholds] = useState<{ [room: string]: { temp: number; humidity: number } }>({
     "Living Room": { temp: 28, humidity: 70 },
     "Kitchen": { temp: 30, humidity: 75 },
     "Bedroom": { temp: 26, humidity: 65 },
